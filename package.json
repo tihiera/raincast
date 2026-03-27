@@ -1,0 +1,41 @@
+{
+  "name": "raincast",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "@google/genai": "^1.46.0",
+    "@opeepsfun/open-peeps": "^1.0.6",
+    "@rain/editkit": "file:packages/editkit",
+    "@rain/webtools": "file:packages/webtools",
+    "@tauri-apps/plugin-http": "^2",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "lucide-react": "^0.577.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0",
+    "react-window": "^2.2.7",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "shiki": "^4.0.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@tauri-apps/cli": "^2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/react-window": "^1.8.8",
+    "@vitejs/plugin-react": "^4.6.0",
+    "tailwindcss": "^4.2.2",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4"
+  }
+}

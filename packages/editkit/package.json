@@ -1,0 +1,26 @@
+{
+  "name": "@rain/editkit",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./core": "./dist/core.js",
+    "./node": "./dist/node.js",
+    "./browser": "./dist/browser.js",
+    "./prompts": "./dist/prompts.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "prettier": "^3.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^3.0.0"
+  }
+}
