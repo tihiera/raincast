@@ -3,8 +3,10 @@ import { Popover } from "../common";
 import type { AiProviderId } from "../../lib/ai/types";
 
 const PROVIDERS: Array<{ id: AiProviderId; name: string; keyId: string }> = [
-  { id: "gemini",    name: "Gemini",    keyId: "google" },
-  { id: "anthropic", name: "Anthropic", keyId: "anthropic" },
+  { id: "gemini",              name: "Gemini",               keyId: "google" },
+  { id: "anthropic",          name: "Anthropic",            keyId: "anthropic" },
+  { id: "openai",             name: "OpenAI Compatible",    keyId: "openai-compatible-key" },
+  { id: "anthropic-compatible", name: "Anthropic Compatible", keyId: "anthropic-compatible-key" },
 ];
 
 function hasApiKey(keyId: string): boolean {

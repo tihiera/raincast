@@ -6,11 +6,12 @@ import { useProjectContext } from "../lib/project/ProjectContext";
 import { getActiveProviderId, setActiveProviderId } from "../lib/ai/settings";
 import type { AiProviderId } from "../lib/ai/types";
 
-const AI_PROVIDERS: Array<{ id: string; name: string; providerId?: AiProviderId }> = [
-  { id: "google",    name: "Google Gemini",  providerId: "gemini" },
-  { id: "anthropic", name: "Anthropic Claude", providerId: "anthropic" },
-  { id: "xai",       name: "xAI" },
-  { id: "openai",    name: "OpenAI" },
+const AI_PROVIDERS: Array<{ id: string; name: string; providerId?: AiProviderId; hasCustomUrl?: boolean }> = [
+  { id: "google",               name: "Google Gemini",        providerId: "gemini" },
+  { id: "anthropic",            name: "Anthropic Claude",     providerId: "anthropic" },
+  { id: "xai",                  name: "xAI" },
+  { id: "openai",               name: "OpenAI Compatible",   providerId: "openai",              hasCustomUrl: true },
+  { id: "anthropic-compatible", name: "Anthropic Compatible", providerId: "anthropic-compatible", hasCustomUrl: true },
 ];
 
 const SEARCH_PROVIDERS: Array<{ id: string; name: string; hint: string }> = [
@@ -43,6 +44,8 @@ function ApiKeyModal({ onClose }: { onClose: () => void }) {
   const [visibleId, setVisibleId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [activeProvider, setActiveProvider] = useState<AiProviderId>(getActiveProviderId);
+  const [models, setModels] = useState<Record<string, string[]>>({});
+  const [loadingModels, setLoadingModels] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -54,6 +57,43 @@ function ApiKeyModal({ onClose }: { onClose: () => void }) {
 
   function updateKey(providerId: string, value: string) {
     const next = { ...keys, [providerId]: value };
+    setKeys(next);
+    localStorage.setItem("raincast-api-keys", JSON.stringify(next));
+  }
+
+  async function loadModels(providerId: string) {
+    const baseUrl = (keys[`${providerId}-url`] || "").trim();
+    const apiKey = keys[providerId] || "";
+    if (!apiKey || !baseUrl) return;
+
+    setLoadingModels((prev) => ({ ...prev, [providerId]: true }));
+    try {
+      const res = await fetch(`${baseUrl}/models`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const modelList: string[] = Array.isArray(data.data)
+        ? data.data.map((m: { id: string }) => m.id)
+        : Array.isArray(data)
+        ? data.map((m: string) => m)
+        : [];
+      setModels((prev) => ({ ...prev, [providerId]: modelList }));
+    } catch (err) {
+      console.warn("[loadModels]", err);
+    } finally {
+      setLoadingModels((prev) => ({ ...prev, [providerId]: false }));
+    }
+  }
+
+  function updateCustomUrl(providerId: string, value: string) {
+    const next = { ...keys, [`${providerId}-url`]: value };
+    setKeys(next);
+    localStorage.setItem("raincast-api-keys", JSON.stringify(next));
+  }
+
+  function updateCustomModel(providerId: string, value: string) {
+    const next = { ...keys, [`${providerId}-model`]: value };
     setKeys(next);
     localStorage.setItem("raincast-api-keys", JSON.stringify(next));
   }
@@ -170,9 +210,7 @@ function ApiKeyModal({ onClose }: { onClose: () => void }) {
               </button>
 
               {isOpen && (
-                <div style={{
-                  padding: "6px 8px 10px 23px",
-                }}>
+                <div style={{ padding: "6px 8px 10px 23px" }}>
                   <label style={{
                     fontSize: 10,
                     fontWeight: 600,
@@ -227,6 +265,90 @@ function ApiKeyModal({ onClose }: { onClose: () => void }) {
                       }
                     </button>
                   </div>
+
+                  {p.hasCustomUrl && (
+                    <>
+                      <label style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        color: "var(--text-tertiary)",
+                        marginBottom: 4,
+                        marginTop: 8,
+                        display: "block",
+                        letterSpacing: "0.03em",
+                        textTransform: "uppercase",
+                      }}>
+                        Base URL
+                      </label>
+                      <input
+                        type="text"
+                        value={keys[`${p.id}-url`] || ""}
+                        onChange={(e) => updateCustomUrl(p.id, e.target.value)}
+                        placeholder={p.id === "openai" ? "https://api.openai.com/v1" : "https://api.anthropic.com/v1"}
+                        style={{
+                          width: "100%",
+                          padding: "6px 10px",
+                          fontSize: 12,
+                          borderRadius: 8,
+                          border: "1px solid var(--input-border)",
+                          background: "var(--input-bg)",
+                          color: "var(--text-input)",
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                        onFocus={(e) => { e.currentTarget.style.borderColor = "var(--slider-thumb)"; }}
+                        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--input-border)"; }}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => loadModels(p.id)}
+                        disabled={loadingModels[p.id] || !keys[p.id] || !keys[`${p.id}-url`]}
+                        style={{
+                          marginTop: 8,
+                          width: "100%",
+                          padding: "5px 0",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          borderRadius: 6,
+                          border: "1px solid var(--input-border)",
+                          background: "var(--subtle-bg)",
+                          color: "var(--text-primary)",
+                          cursor: "pointer",
+                          opacity: loadingModels[p.id] || !keys[p.id] || !keys[`${p.id}-url`] ? 0.5 : 1,
+                          transition: "background 150ms ease",
+                        }}
+                        onMouseEnter={(e) => { if (!loadingModels[p.id] && keys[p.id] && keys[`${p.id}-url`]) e.currentTarget.style.background = "var(--input-border)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "var(--subtle-bg)"; }}
+                      >
+                        {loadingModels[p.id] ? "Loading..." : "Load Models"}
+                      </button>
+
+                      {(models[p.id] || []).length > 0 && (
+                        <select
+                          value={keys[`${p.id}-model`] || ""}
+                          onChange={(e) => updateCustomModel(p.id, e.target.value)}
+                          style={{
+                            marginTop: 6,
+                            width: "100%",
+                            padding: "5px 8px",
+                            fontSize: 12,
+                            borderRadius: 6,
+                            border: "1px solid var(--input-border)",
+                            background: "var(--input-bg)",
+                            color: "var(--text-input)",
+                            outline: "none",
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          <option value="">Select model...</option>
+                          {models[p.id].map((m) => (
+                            <option key={m} value={m}>{m}</option>
+                          ))}
+                        </select>
+                      )}
+                    </>
+                  )}
 
                   {p.providerId && hasKey && !isActive && (
                     <button

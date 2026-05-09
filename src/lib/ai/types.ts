@@ -1,7 +1,7 @@
 import type { ChatMessage } from "../chat/types";
 import type { LayoutArchetype } from "../generation/templates";
 
-export type AiProviderId = "gemini" | "anthropic";
+export type AiProviderId = "gemini" | "anthropic" | "openai" | "anthropic-compatible";
 
 export type QueryIntent = "chat" | "build_app" | "edit_app" | "generate_logo" | "unsupported";
 

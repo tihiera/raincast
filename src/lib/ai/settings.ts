@@ -49,10 +49,74 @@ export function setBraveApiKey(key: string): void {
   setKeys(keys);
 }
 
+// ── OpenAI Compatible ──────────────────────────────────────────────────────────
+
+export function getOpenAICompatibleApiKey(): string | null {
+  return getKeys()["openai-compatible-key"] || null;
+}
+
+export function setOpenAICompatibleApiKey(key: string): void {
+  const keys = getKeys();
+  keys["openai-compatible-key"] = key;
+  setKeys(keys);
+}
+
+export function getOpenAICompatibleBaseUrl(): string | null {
+  return getKeys()["openai-compatible-url"] || null;
+}
+
+export function setOpenAICompatibleBaseUrl(url: string): void {
+  const keys = getKeys();
+  keys["openai-compatible-url"] = url;
+  setKeys(keys);
+}
+
+export function getOpenAICompatibleModel(): string | null {
+  return getKeys()["openai-compatible-model"] || null;
+}
+
+export function setOpenAICompatibleModel(model: string): void {
+  const keys = getKeys();
+  keys["openai-compatible-model"] = model;
+  setKeys(keys);
+}
+
+// ── Anthropic Compatible ───────────────────────────────────────────────────────
+
+export function getAnthropicCompatibleApiKey(): string | null {
+  return getKeys()["anthropic-compatible-key"] || null;
+}
+
+export function setAnthropicCompatibleApiKey(key: string): void {
+  const keys = getKeys();
+  keys["anthropic-compatible-key"] = key;
+  setKeys(keys);
+}
+
+export function getAnthropicCompatibleBaseUrl(): string | null {
+  return getKeys()["anthropic-compatible-url"] || null;
+}
+
+export function setAnthropicCompatibleBaseUrl(url: string): void {
+  const keys = getKeys();
+  keys["anthropic-compatible-url"] = url;
+  setKeys(keys);
+}
+
+export function getAnthropicCompatibleModel(): string | null {
+  return getKeys()["anthropic-compatible-model"] || null;
+}
+
+export function setAnthropicCompatibleModel(model: string): void {
+  const keys = getKeys();
+  keys["anthropic-compatible-model"] = model;
+  setKeys(keys);
+}
+
 export function getActiveProviderId(): AiProviderId {
   try {
     const stored = localStorage.getItem(PROVIDER_KEY);
-    if (stored === "gemini" || stored === "anthropic") return stored;
+    if (stored === "gemini" || stored === "anthropic" || stored === "openai" || stored === "anthropic-compatible") return stored;
   } catch { /* localStorage unavailable */ }
   return "gemini"; // default
 }
